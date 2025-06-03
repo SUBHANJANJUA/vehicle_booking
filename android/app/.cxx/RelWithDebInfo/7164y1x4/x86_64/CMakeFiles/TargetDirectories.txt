@@ -1,0 +1,2 @@
+D:/BS IT/final_year_project/vehicle_booking/android/app/.cxx/RelWithDebInfo/7164y1x4/x86_64/CMakeFiles/edit_cache.dir
+D:/BS IT/final_year_project/vehicle_booking/android/app/.cxx/RelWithDebInfo/7164y1x4/x86_64/CMakeFiles/rebuild_cache.dir

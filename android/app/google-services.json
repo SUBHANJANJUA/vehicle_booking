@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "70347112996",
+    "project_id": "vehiclebooking-98c8a",
+    "storage_bucket": "vehiclebooking-98c8a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:70347112996:android:73d5a64a4a054a749e4eb1",
+        "android_client_info": {
+          "package_name": "com.subhan.vehicle_booking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtRZDjrZ37HPrHBA_wcq-TADVpNW3aaiM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
