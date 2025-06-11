@@ -6,12 +6,10 @@ import 'package:vehicle_booking/app/data/app_colors.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final VoidCallback? chatOntap;
+  final Widget? actionWidget;
 
-  const CustomAppBar({
-    super.key,
-    required this.title,
-    this.chatOntap,
-  });
+  const CustomAppBar(
+      {super.key, required this.title, this.chatOntap, this.actionWidget});
 
   @override
   Widget build(BuildContext context) {
@@ -28,18 +26,23 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
         actions: [
-          chatOntap == null
-              ? SizedBox.shrink()
-              : Padding(
-                  padding: EdgeInsets.only(right: 15.w),
-                  child: InkWell(
-                    onTap: chatOntap,
-                    child: Icon(
-                      Icons.message_outlined,
-                      color: AppColors.green,
+          Row(
+            children: [
+              actionWidget ?? SizedBox.shrink(),
+              chatOntap == null
+                  ? SizedBox.shrink()
+                  : Padding(
+                      padding: EdgeInsets.only(right: 15.w),
+                      child: InkWell(
+                        onTap: chatOntap,
+                        child: Icon(
+                          Icons.message_outlined,
+                          color: AppColors.green,
+                        ),
+                      ),
                     ),
-                  ),
-                )
+            ],
+          )
         ],
         leading: InkWell(
           onTap: () => Get.back(),
