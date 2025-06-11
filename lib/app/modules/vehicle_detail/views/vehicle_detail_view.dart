@@ -1,14 +1,12 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:get/get.dart';
 import 'package:vehicle_booking/app/data/app_colors.dart';
 import 'package:vehicle_booking/app/data/util/custom_appbar.dart';
+import 'package:vehicle_booking/app/modules/chat/controllers/chat_controller.dart';
 import 'package:vehicle_booking/app/modules/chat/views/chat_view.dart';
 import 'package:vehicle_booking/app/modules/signup/controllers/signup_controller.dart';
-
 import '../../../../gen/assets.gen.dart';
 import '../controllers/vehicle_detail_controller.dart';
 
@@ -40,17 +38,30 @@ class VehicleDetailView extends GetView<VehicleDetailController> {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: CustomAppBar(
-          title: 'Vehicle Details View',
-          chatOntap: signupcontroller.driver.value
-              ? null
-              : () {
-                  Get.to(() => ChatView(
-                        currentUserId: " user.uid",
-                        otherUserId: driverUserId,
-                        otherUserName: number,
-                      ));
-                  log('tab on chat button ');
-                }),
+        title: 'Vehicle Details View',
+        chatOntap: signupcontroller.driver.value
+            ? null
+            : () {
+                final currentUserId =
+                    signupcontroller.userModel.value?.uid ?? '';
+                final chatId = currentUserId.hashCode <= driverUserId.hashCode
+                    ? '$currentUserId\_$driverUserId'
+                    : '$driverUserId\_$currentUserId';
+
+                Get.to(
+                  () => ChatView(
+                    currentUserId: currentUserId,
+                    otherUserId: driverUserId,
+                    otherUserName: number,
+                  ),
+                  binding: BindingsBuilder(() {
+                    Get.put(ChatController(), tag: chatId);
+                  }),
+                );
+
+                log('tab on chat button');
+              },
+      ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
         child: SingleChildScrollView(
