@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_booking/app/modules/signup/controllers/signup_controller.dart';
+import 'package:vehicle_booking/notificaitons_services.dart';
 
 // class SplashScreenController extends GetxController {
 
@@ -10,6 +11,7 @@ import 'package:vehicle_booking/app/modules/signup/controllers/signup_controller
 
 class SplashScreenController extends GetxController
     with GetSingleTickerProviderStateMixin {
+  NotificationServices notificationServices = NotificationServices();
   late AnimationController animationController;
   late Animation<double> scaleAnimation;
   late Animation<double> fadeAnimation;
@@ -17,6 +19,7 @@ class SplashScreenController extends GetxController
   @override
   void onInit() {
     super.onInit();
+    notificationServices.initializeNotifications();
     Future.delayed(Duration(seconds: 2), () {
       Get.find<SignupController>().checkLoginStatus();
     });

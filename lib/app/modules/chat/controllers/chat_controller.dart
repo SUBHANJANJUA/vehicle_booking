@@ -1,6 +1,10 @@
+import 'dart:convert';
+// import 'dart:developer';
+import 'package:googleapis_auth/auth_io.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
 class ChatController extends GetxController {
   void initChat({required String current, required String other}) {
@@ -15,6 +19,46 @@ class ChatController extends GetxController {
   }
 
   RxList<Map<String, dynamic>> chatPreviewList = <Map<String, dynamic>>[].obs;
+
+  Future<void> sendPushNotificationV1({
+    required String targetToken,
+    required String senderName,
+    required String message,
+  }) async {
+    final accessToken = await FcmTokenManager.getAccessToken();
+
+    final url = Uri.parse(
+        'https://fcm.googleapis.com/v1/projects/vehiclebooking-98c8a/messages:send');
+
+    final body = {
+      "message": {
+        "token": targetToken,
+        "notification": {
+          "title": senderName,
+          "body": message,
+        },
+        "data": {
+          "type": "chat",
+          "click_action": "FLUTTER_NOTIFICATION_CLICK",
+        }
+      }
+    };
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200) {
+      print("✅ Notification sent successfully.");
+    } else {
+      print("❌ Failed to send notification: ${response.body}");
+    }
+  }
 
   void loadChatPreviews(String userId) {
     firestore
@@ -99,6 +143,22 @@ class ChatController extends GetxController {
       _isListening = true;
       listenToMessages();
     }
+    final receiverDoc =
+        await firestore.collection('users').doc(otherUserId).get();
+    final receiverToken = receiverDoc.data()?['fcmToken'];
+
+// Optional: Get sender name
+    final senderDoc =
+        await firestore.collection('users').doc(currentUserId).get();
+    final senderName = senderDoc.data()?['name'] ?? 'New Message';
+
+    if (receiverToken != null) {
+      await sendPushNotificationV1(
+        targetToken: receiverToken,
+        senderName: senderName,
+        message: text.trim(),
+      );
+    }
   }
 
   bool _isListening = false;
@@ -112,8 +172,39 @@ class ChatController extends GetxController {
         .snapshots()
         .listen((snapshot) {
       messages.value = snapshot.docs
+          // ignore: unnecessary_cast
           .map((doc) => doc.data() as Map<String, dynamic>)
           .toList();
     });
+  }
+}
+
+class FcmTokenManager {
+  static Future<String> getAccessToken() async {
+    final scopes = [
+      'https://www.googleapis.com/auth/firebase.messaging',
+    ];
+
+    final accountCredentials = ServiceAccountCredentials.fromJson({
+      "type": "service_account",
+      "project_id": "vehiclebooking-98c8a",
+      "private_key_id": "YOUR_PRIVATE_KEY_ID",
+      "private_key":
+          "-----BEGIN PRIVATE KEY-----\nYOUR_KEY\n-----END PRIVATE KEY-----\n",
+      "client_email":
+          "firebase-adminsdk-fbsvc@vehiclebooking-98c8a.iam.gserviceaccount.com",
+      "client_id": "117559121866140831515",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url":
+          "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url":
+          "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40vehiclebooking-98c8a.iam.gserviceaccount.com"
+    });
+
+    final client = await clientViaServiceAccount(accountCredentials, scopes);
+    final token = client.credentials.accessToken.data;
+    client.close();
+    return token;
   }
 }

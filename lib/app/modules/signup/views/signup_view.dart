@@ -58,15 +58,15 @@ class SignupView extends GetView<SignupController> {
                               color: Colors.black.withValues(alpha: 0.50),
                             ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Enter your name";
-                            }
-                            if (value.length < 3) {
-                              return "Username be at least 3 characters";
-                            }
-                            return null;
-                          },
+                          // validator: (value) {
+                          //   if (value == null || value.isEmpty) {
+                          //     return "Enter your name";
+                          //   }
+                          //   if (value.length < 3) {
+                          //     return "Username be at least 3 characters";
+                          //   }
+                          //   return null;
+                          // },
                         )
                       : TextFormField(
                           controller: controller.nameController,
@@ -170,9 +170,9 @@ class SignupView extends GetView<SignupController> {
                                 if (value == null || value.isEmpty) {
                                   return "Enter your CNIC number.";
                                 }
-                                if (!RegExp(r'^\d{13}$').hasMatch(value)) {
-                                  return "Please enter a valid 13-digit CNIC number.";
-                                }
+                                // if (!RegExp(r'^\d{13}$').hasMatch(value)) {
+                                //   return "Please enter a valid 13-digit CNIC number.";
+                                // }
                                 return null;
                               },
                             ),

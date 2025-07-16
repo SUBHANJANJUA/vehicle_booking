@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -10,7 +11,6 @@ import 'package:vehicle_booking/app/modules/home/views/home_view.dart';
 import 'package:vehicle_booking/app/modules/signup/views/signin_view.dart';
 
 class SignupController extends GetxController {
-  //final HomeController homecontroller = Get.find<HomeController>();
   RxBool driver = false.obs;
   var selectedValue = 2.obs;
   var vehicletype = 1.obs;
@@ -46,6 +46,16 @@ class SignupController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final userModel = Rxn<UserModel>();
+
+  Future<void> saveUserToken(String uid) async {
+    String? token = await FirebaseMessaging.instance.getToken();
+    if (token != null) {
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        'fcmToken': token,
+      });
+    }
+  }
+
   // Sign up
   Future<void> register(String email, String password, String userType) async {
     try {
@@ -61,6 +71,7 @@ class SignupController extends GetxController {
         uid: uid,
         name: nameController.text,
         email: emailController.text,
+        password: passwordController.text,
         userType: userType,
         licenseNumber: licenseNumberController.text,
         licenseExpDate: licenseExpDateController.text,
@@ -74,6 +85,8 @@ class SignupController extends GetxController {
 
       EasyLoading.showSuccess('Signup Successful!');
       _navigateToHome(userType);
+
+      await saveUserToken(uid);
       EasyLoading.dismiss();
     } catch (e) {
       EasyLoading.dismiss();
@@ -100,6 +113,7 @@ class SignupController extends GetxController {
       // await homecontroller.loadTrukList();
       EasyLoading.showSuccess('Signin Successful!');
       _navigateToHome(userType);
+      await saveUserToken(userCred.user!.uid);
       EasyLoading.dismiss();
     } catch (e) {
       Get.snackbar('Error', e.toString());
